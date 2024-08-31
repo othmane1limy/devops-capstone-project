@@ -135,13 +135,77 @@ class TestAccountService(TestCase):
         self.assertEqual(resp.status_code, status.HTTP_200_OK)
         data = resp.get_json()
         self.assertEqual(data["name"], account.name)
-## test 
+## test list all accounts
+def test_list_accounts(self):
+    """It should list all Accounts"""
+    # Create some accounts
+    self._create_accounts(3)
+    
+    # Make a GET request to list all accounts
+    resp = self.client.get(f"{BASE_URL}", content_type="application/json")
+    
+    # Assert that the response status code is HTTP_200_OK
+    self.assertEqual(resp.status_code, status.HTTP_200_OK)
+    
+    # Get the JSON data from the response
+    data = resp.get_json()
+    
+    # Assert that the number of accounts returned matches the number of created accounts
+    self.assertEqual(len(data), 3)
+
 
 ## test not found
     def test_get_account_not_found(self):
         """It should not Read an Account that is not found"""
         resp = self.client.get(f"{BASE_URL}/0")
         self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
+## test delete
+def test_delete_account(self):
+    """It should delete an existing Account"""
+    # Create an account
+    account = self._create_accounts(1)[0]
+    
+    # Make a DELETE request to delete the account
+    resp = self.client.delete(f"{BASE_URL}/{account.id}", content_type="application/json")
+    
+    # Assert that the response status code is HTTP_204_NO_CONTENT
+    self.assertEqual(resp.status_code, status.HTTP_204_NO_CONTENT)
+    
+    # Try to get the deleted account
+    resp = self.client.get(f"{BASE_URL}/{account.id}", content_type="application/json")
+    
+    # Assert that the response status code is HTTP_404_NOT_FOUND
+    self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
+
+##test update
+def test_update_account(self):
+    """It should update an existing Account"""
+    # Create an account
+    account = self._create_accounts(1)[0]
+    
+    # Data to update
+    updated_data = {
+        "name": "Updated Name",
+        "email": "updated@example.com"
+    }
+    
+    # Make a PUT request to update the account
+    resp = self.client.put(
+        f"{BASE_URL}/{account.id}",
+        json=updated_data,
+        content_type="application/json"
+    )
+    
+    # Assert that the response status code is HTTP_200_OK
+    self.assertEqual(resp.status_code, status.HTTP_200_OK)
+    
+    # Get the updated data from the response
+    updated_account = resp.get_json()
+    
+    # Assert that the account data was updated correctly
+    self.assertEqual(updated_account["name"], updated_data["name"])
+    self.assertEqual(updated_account["email"], updated_data["email"])
+
 
 
 
