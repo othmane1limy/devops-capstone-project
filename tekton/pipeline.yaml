@@ -4,13 +4,20 @@ metadata:
   name: example-pipeline
 spec:
   params:
-    # Other parameters...
+    # Existing parameters...
+    - name: repo-url
+      type: string
+      description: The URL of the Git repository to clone
+    - name: branch
+      type: string
+      description: The branch of the Git repository to use
     - name: build-image
       type: string
-      description: The name of the image to build
+      description: The name of the Docker image to build
 
   workspaces:
     - name: pipeline-workspace
+    - name: manifest-dir
 
   tasks:
     - name: clone
@@ -54,3 +61,22 @@ spec:
       runAfter:
         - tests
         - lint
+
+    - name: deploy
+      workspaces:
+        - name: manifest-dir
+          workspace: pipeline-workspace
+      taskRef:
+        name: openshift-client
+        kind: ClusterTask
+      params:
+        - name: SCRIPT
+          value: |
+            echo "Updating manifest..."
+            sed -i "s|IMAGE_NAME_HERE|$(params.build-image)|g" deploy/deployment.yaml
+            cat deploy/deployment.yaml
+            echo "Deploying to OpenShift..."
+            oc apply -f deploy/
+            oc get pods -l app=accounts
+      runAfter:
+        - build
