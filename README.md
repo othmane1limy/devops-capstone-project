@@ -22,6 +22,7 @@ source bin/setup.sh
 ```
 
 This will install Python 3.9, make it the default, modify the bash prompt, create a Python virtual environment and activate it.
+![Build Status](https://github.com/othmane1limy/devops-capstone-project/actions/workflows/ci-build.yaml/badge.svg)
 
 After sourcing it you prompt should look like this:
 
