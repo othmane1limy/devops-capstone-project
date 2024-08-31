@@ -1,6 +1,9 @@
-name: CI
+name: CI Build
 
 on:
+  push:
+    branches:
+      - main
   pull_request:
     branches:
       - main
@@ -9,22 +12,15 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
-    services:
-      postgres:
-        image: postgres:alpine
-        ports:
-          - 5432:5432
-        options: --health-cmd "pg_isready" --health-interval 10s
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
-
+      
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
           python-version: '3.x'
-
+      
       - name: Install dependencies
         run: |
           pip install -r requirements.txt
@@ -33,7 +29,7 @@ jobs:
       - name: Lint code
         run: |
           flake8 .
-
+      
       - name: Run tests
         run: |
           pytest
